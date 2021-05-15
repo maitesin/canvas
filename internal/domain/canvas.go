@@ -86,6 +86,21 @@ type Canvas struct {
 	createdAt time.Time
 }
 
+// ID returns the ID of the canvas
+func (c Canvas) ID() uuid.UUID {
+	return c.id
+}
+
+// Height returns the height of the canvas
+func (c Canvas) Height() uint {
+	return c.height
+}
+
+// Width returns the width of the canvas
+func (c Canvas) Width() uint {
+	return c.width
+}
+
 // Tasks returns the slice of tasks to be performed in the canvas
 func (c Canvas) Tasks() []Task {
 	return c.tasks

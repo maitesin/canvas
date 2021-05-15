@@ -15,6 +15,8 @@ type Command interface {
 	Name() string
 }
 
+//go:generate moq -out ../infra/http/zmock_command_test.go -pkg http_test . CommandHandler
+
 // CommandHandler defines the interface of the handler to run commands
 type CommandHandler interface {
 	Handle(ctx context.Context, cmd Command) error

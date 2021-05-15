@@ -1,0 +1,157 @@
+package http
+
+import (
+	"encoding/json"
+	"errors"
+	"fmt"
+	"net/http"
+
+	"github.com/go-chi/chi"
+	"github.com/google/uuid"
+	"github.com/maitesin/sketch/internal/app"
+	"github.com/maitesin/sketch/internal/domain"
+)
+
+func CreateCanvasHandler(handler app.CommandHandler) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		var createCanvasRequest CreateCanvasRequest
+		if err := json.NewDecoder(r.Body).Decode(&createCanvasRequest); err != nil {
+			http.Error(w, http.StatusText(http.StatusBadRequest), http.StatusBadRequest)
+			return
+		}
+
+		cmd := app.CreateCanvasCmd{
+			ID: createCanvasRequest.ID,
+		}
+
+		if err := handler.Handle(r.Context(), cmd); err != nil {
+			http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
+			return
+		}
+
+		w.Header().Set("Location", fmt.Sprintf("http://%s%s/%s", r.Host, r.RequestURI, createCanvasRequest.ID.String()))
+		w.WriteHeader(http.StatusCreated)
+	}
+}
+
+func AddTaskHandler(handler app.CommandHandler) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		var taskRequest TaskRequest
+		if err := json.NewDecoder(r.Body).Decode(&taskRequest); err != nil {
+			http.Error(w, http.StatusText(http.StatusBadRequest), http.StatusBadRequest)
+			return
+		}
+
+		if err := taskRequest.Validate(); err != nil {
+			http.Error(w, http.StatusText(http.StatusBadRequest), http.StatusBadRequest)
+			return
+		}
+
+		canvasID, err := uuid.Parse(chi.URLParam(r, "canvasID"))
+		if err != nil {
+			http.Error(w, http.StatusText(http.StatusBadRequest), http.StatusBadRequest)
+			return
+		}
+
+		cmd := createCmdFromTaskRequest(taskRequest, canvasID)
+
+		if err := handler.Handle(r.Context(), cmd); err != nil {
+			switch {
+			case errors.Is(err, app.CanvasNotFound{}):
+				http.Error(w, http.StatusText(http.StatusNotFound), http.StatusNotFound)
+			default:
+				http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
+			}
+		}
+	}
+}
+
+func createCmdFromTaskRequest(request TaskRequest, canvasID uuid.UUID) app.Command {
+	switch request.Type {
+	case DrawRectangleRequestType:
+		return createDrawRectangleCmdFromTaskRequest(request, canvasID)
+	case AddFillRequestType:
+		return createAddFillCmdFromTaskRequest(request, canvasID)
+	}
+
+	return nil
+}
+
+func createDrawRectangleCmdFromTaskRequest(request TaskRequest, canvasID uuid.UUID) app.Command {
+	var filler rune
+	if request.Rectangle.Filler != nil {
+		filler = *request.Rectangle.Filler
+	}
+
+	var outline rune
+	if request.Rectangle.Outline != nil {
+		outline = *request.Rectangle.Outline
+	}
+
+	return app.DrawRectangleCmd{
+		CanvasID:    canvasID,
+		RectangleID: request.Rectangle.ID,
+		Point: domain.NewPoint(
+			request.Rectangle.Point.X,
+			request.Rectangle.Point.Y,
+		),
+		Height:  request.Rectangle.Height,
+		Width:   request.Rectangle.Width,
+		Filler:  filler,
+		Outline: outline,
+	}
+}
+
+func createAddFillCmdFromTaskRequest(request TaskRequest, canvasID uuid.UUID) app.Command {
+	return app.AddFillCmd{
+		CanvasID: canvasID,
+		FillID:   request.Fill.ID,
+		Point: domain.NewPoint(
+			request.Fill.Point.X,
+			request.Fill.Point.Y,
+		),
+		Filler: request.Fill.Filler,
+	}
+}
+
+func RenderCanvasHandler(handler app.QueryHandler) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		canvasID, err := uuid.Parse(chi.URLParam(r, "canvasID"))
+		if err != nil {
+			http.Error(w, http.StatusText(http.StatusBadRequest), http.StatusBadRequest)
+			return
+		}
+
+		query := app.RetrieveCanvasQuery{
+			ID: canvasID,
+		}
+
+		queryResponse, err := handler.Handle(r.Context(), query)
+		if err != nil {
+			switch {
+			case errors.Is(err, app.CanvasNotFound{}):
+				http.Error(w, http.StatusText(http.StatusNotFound), http.StatusNotFound)
+			default:
+				http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
+			}
+			return
+		}
+
+		canvas, ok := queryResponse.(domain.Canvas)
+		if !ok {
+			http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
+			return
+		}
+
+		httpResponse := RetrieveCanvas{
+			ID:     canvas.ID(),
+			Height: canvas.Height(),
+			Width:  canvas.Width(),
+			Tasks:  uint(len(canvas.Tasks())),
+		}
+
+		if err := json.NewEncoder(w).Encode(httpResponse); err != nil {
+			http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
+		}
+	}
+}

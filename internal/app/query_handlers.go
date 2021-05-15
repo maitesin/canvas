@@ -16,6 +16,8 @@ type Query interface {
 // QueryResponse defines the response to be received from the QueryHandler
 type QueryResponse interface{}
 
+//go:generate moq -out ../infra/http/zmock_query_test.go -pkg http_test . QueryResponse QueryHandler
+
 // QueryHandler defines the interface of the handler to run queries
 type QueryHandler interface {
 	Handle(ctx context.Context, query Query) (QueryResponse, error)
