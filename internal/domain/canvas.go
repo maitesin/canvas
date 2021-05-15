@@ -8,11 +8,11 @@ import (
 
 // Point defines a point in a 2D space
 type Point struct {
-	x, y int
+	x, y uint
 }
 
 // NewPoint is a constructor for points
-func NewPoint(x, y int) Point {
+func NewPoint(x, y uint) Point {
 	return Point{
 		x: x,
 		y: y,
@@ -22,12 +22,12 @@ func NewPoint(x, y int) Point {
 // Area defines a square area in a 2D space
 type Area struct {
 	point  Point
-	height int
-	width  int
+	height uint
+	width  uint
 }
 
 // NewArea is a constructor for areas
-func NewArea(point Point, height, width int) Area {
+func NewArea(point Point, height, width uint) Area {
 	return Area{
 		point:  point,
 		height: height,
@@ -35,8 +35,10 @@ func NewArea(point Point, height, width int) Area {
 	}
 }
 
-// Rectangle defines the coordinates of a 2D rectangle with all its properties
-type Rectangle struct {
+type Task interface{}
+
+// DrawRectangle defines the coordinates of how to draw a 2D rectangle
+type DrawRectangle struct {
 	id      uuid.UUID
 	area    Area
 	filler  rune
@@ -45,9 +47,9 @@ type Rectangle struct {
 	createdAt time.Time
 }
 
-// NewRectangle is a constructor for rectangles
-func NewRectangle(id uuid.UUID, area Area, filler, outline rune, createdAt time.Time) Rectangle {
-	return Rectangle{
+// NewDrawRectangle is a constructor for tasks that draw rectangles
+func NewDrawRectangle(id uuid.UUID, area Area, filler, outline rune, createdAt time.Time) DrawRectangle {
+	return DrawRectangle{
 		id:        id,
 		area:      area,
 		filler:    filler,
@@ -56,26 +58,56 @@ func NewRectangle(id uuid.UUID, area Area, filler, outline rune, createdAt time.
 	}
 }
 
-// Canvas defines the 2D space where rectangles can be placed
-type Canvas struct {
+// Fill defines the coordinates where a filling operation needs to be performed
+type Fill struct {
 	id     uuid.UUID
-	area   Area
-	layers []Rectangle
+	point  Point
+	filler rune
 
 	createdAt time.Time
 }
 
-// NewCanvas is a constructor for canvas
-func NewCanvas(id uuid.UUID, area Area, layers []Rectangle, createdAt time.Time) Canvas {
-	return Canvas{
+func NewFill(id uuid.UUID, point Point, filler rune, createdAt time.Time) Fill {
+	return Fill{
 		id:        id,
-		area:      area,
-		layers:    layers,
+		point:     point,
+		filler:    filler,
 		createdAt: createdAt,
 	}
 }
 
-// AddRectangle adds a rectangle to an existing canvas
-func (c *Canvas) AddRectangle(rectangle Rectangle) {
-	c.layers = append(c.layers, rectangle)
+// Canvas defines the 2D space where rectangles can be placed
+type Canvas struct {
+	id     uuid.UUID
+	height uint
+	width  uint
+	tasks  []Task
+
+	createdAt time.Time
+}
+
+// Tasks returns the slice of tasks to be performed in the canvas
+func (c Canvas) Tasks() []Task {
+	return c.tasks
+}
+
+// NewCanvas is a constructor for canvas
+func NewCanvas(id uuid.UUID, height, width uint, tasks []Task, createdAt time.Time) Canvas {
+	return Canvas{
+		id:        id,
+		height:    height,
+		width:     width,
+		tasks:     tasks,
+		createdAt: createdAt,
+	}
+}
+
+// AddDrawRectangle adds a rectangle to an existing canvas
+func (c *Canvas) AddDrawRectangle(rectangle DrawRectangle) {
+	c.tasks = append(c.tasks, rectangle)
+}
+
+// AddFill adds a fill operation to an existing canvas
+func (c *Canvas) AddFill(fill Fill) {
+	c.tasks = append(c.tasks, fill)
 }
