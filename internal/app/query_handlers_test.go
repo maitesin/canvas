@@ -65,8 +65,8 @@ func TestRetrieveCanvasHandler(t *testing.T) {
                    when the retrieve canvas query is handled
                    then an error is returned`,
 			query: validQuery(),
-			repositoryMutator: func(repository app.CanvasRepository) app.CanvasRepository {
-				repository = &CanvasRepositoryMock{
+			repositoryMutator: func(app.CanvasRepository) app.CanvasRepository {
+				repository := &CanvasRepositoryMock{
 					FindByIDFunc: func(_ context.Context, _ uuid.UUID) (domain.Canvas, error) {
 						return domain.Canvas{}, app.CanvasNotFound{}
 					},

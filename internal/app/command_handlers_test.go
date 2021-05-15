@@ -47,8 +47,8 @@ func TestCreateCanvasHandler(t *testing.T) {
                    when the create canvas handler is executed
                    then an error returned`,
 			command: validCreateCanvasCmd(),
-			repositoryMutator: func(repository app.CanvasRepository) app.CanvasRepository {
-				repository = &CanvasRepositoryMock{
+			repositoryMutator: func(app.CanvasRepository) app.CanvasRepository {
+				repository := &CanvasRepositoryMock{
 					InsertFunc: func(context.Context, domain.Canvas) error {
 						return app.CanvasNotFound{}
 					},
@@ -115,8 +115,8 @@ func TestDrawRectangleHandler(t *testing.T) {
                    when the draw rectangle handler is executed
                    then an error is returned`,
 			command: validDrawRectangleCmd(),
-			repositoryMutator: func(repository app.CanvasRepository) app.CanvasRepository {
-				repository = &CanvasRepositoryMock{
+			repositoryMutator: func(app.CanvasRepository) app.CanvasRepository {
+				repository := &CanvasRepositoryMock{
 					FindByIDFunc: func(context.Context, uuid.UUID) (domain.Canvas, error) {
 						return domain.Canvas{}, app.CanvasNotFound{}
 					},
@@ -130,8 +130,8 @@ func TestDrawRectangleHandler(t *testing.T) {
                    when the draw rectangle handler is executed
                    then an error is returned`,
 			command: validDrawRectangleCmd(),
-			repositoryMutator: func(repository app.CanvasRepository) app.CanvasRepository {
-				repository = &CanvasRepositoryMock{
+			repositoryMutator: func(app.CanvasRepository) app.CanvasRepository {
+				repository := &CanvasRepositoryMock{
 					FindByIDFunc: func(context.Context, uuid.UUID) (domain.Canvas, error) {
 						return domain.Canvas{}, nil
 					},
@@ -198,8 +198,8 @@ func TestAddFillHandler(t *testing.T) {
                    when the add fill handler is executed
                    then an error is returned`,
 			command: validAddFillCmd(),
-			repositoryMutator: func(repository app.CanvasRepository) app.CanvasRepository {
-				repository = &CanvasRepositoryMock{
+			repositoryMutator: func(app.CanvasRepository) app.CanvasRepository {
+				repository := &CanvasRepositoryMock{
 					FindByIDFunc: func(context.Context, uuid.UUID) (domain.Canvas, error) {
 						return domain.Canvas{}, app.CanvasNotFound{}
 					},
@@ -213,8 +213,8 @@ func TestAddFillHandler(t *testing.T) {
                    when the add fill handler is executed
                    then an error is returned`,
 			command: validAddFillCmd(),
-			repositoryMutator: func(repository app.CanvasRepository) app.CanvasRepository {
-				repository = &CanvasRepositoryMock{
+			repositoryMutator: func(app.CanvasRepository) app.CanvasRepository {
+				repository := &CanvasRepositoryMock{
 					FindByIDFunc: func(context.Context, uuid.UUID) (domain.Canvas, error) {
 						return domain.Canvas{}, nil
 					},
