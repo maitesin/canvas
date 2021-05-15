@@ -17,11 +17,11 @@ func validDrawRectangleRequest() httpx.TaskRequest {
 		Rectangle: &httpx.DrawRectangleRequest{
 			ID: uuid.New(),
 			Point: httpx.Point{
-				X: uint(10),
-				Y: uint(10),
+				X: 10,
+				Y: 10,
 			},
-			Height:  uint(5),
-			Width:   uint(5),
+			Height:  5,
+			Width:   5,
 			Filler:  &filler,
 			Outline: &outline,
 		},
@@ -34,11 +34,11 @@ func invalidDrawRectangleRequestMissingBothFillerAndOutline() httpx.TaskRequest 
 		Rectangle: &httpx.DrawRectangleRequest{
 			ID: uuid.New(),
 			Point: httpx.Point{
-				X: uint(10),
-				Y: uint(10),
+				X: 10,
+				Y: 10,
 			},
-			Height: uint(5),
-			Width:  uint(5),
+			Height: 5,
+			Width:  5,
 		},
 	}
 }
@@ -51,11 +51,11 @@ func invalidDrawRectangleRequestWithFillerTooLong() httpx.TaskRequest {
 		Rectangle: &httpx.DrawRectangleRequest{
 			ID: uuid.New(),
 			Point: httpx.Point{
-				X: uint(10),
-				Y: uint(10),
+				X: 10,
+				Y: 10,
 			},
-			Height:  uint(5),
-			Width:   uint(5),
+			Height:  5,
+			Width:   5,
 			Filler:  &filler,
 			Outline: &outline,
 		},
@@ -70,11 +70,11 @@ func invalidDrawRectangleRequestWithOutlineTooLong() httpx.TaskRequest {
 		Rectangle: &httpx.DrawRectangleRequest{
 			ID: uuid.New(),
 			Point: httpx.Point{
-				X: uint(10),
-				Y: uint(10),
+				X: 10,
+				Y: 10,
 			},
-			Height:  uint(5),
-			Width:   uint(5),
+			Height:  5,
+			Width:   5,
 			Filler:  &filler,
 			Outline: &outline,
 		},
@@ -87,8 +87,8 @@ func validAddFillRequest() httpx.TaskRequest {
 		Fill: &httpx.AddFillRequest{
 			ID: uuid.New(),
 			Point: httpx.Point{
-				X: uint(5),
-				Y: uint(5),
+				X: 5,
+				Y: 5,
 			},
 			Filler: "-",
 		},
@@ -101,8 +101,8 @@ func invalidAddFillRequest() httpx.TaskRequest {
 		Fill: &httpx.AddFillRequest{
 			ID: uuid.New(),
 			Point: httpx.Point{
-				X: uint(5),
-				Y: uint(5),
+				X: 5,
+				Y: 5,
 			},
 			Filler: "wololo",
 		},

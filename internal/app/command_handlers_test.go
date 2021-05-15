@@ -80,9 +80,9 @@ func validDrawRectangleCmd() app.Command {
 	return app.DrawRectangleCmd{
 		CanvasID:    uuid.New(),
 		RectangleID: uuid.New(),
-		Point:       domain.NewPoint(uint(0), uint(0)),
-		Height:      uint(10),
-		Width:       uint(10),
+		Point:       domain.NewPoint(0, 0),
+		Height:      10,
+		Width:       10,
 		Filler:      '0',
 		Outline:     'X',
 	}
@@ -166,7 +166,7 @@ func validAddFillCmd() app.Command {
 	return app.AddFillCmd{
 		CanvasID: uuid.New(),
 		FillID:   uuid.New(),
-		Point:    domain.NewPoint(uint(12), uint(12)),
+		Point:    domain.NewPoint(12, 12),
 		Filler:   '-',
 	}
 }

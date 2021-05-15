@@ -8,31 +8,25 @@ import (
 
 // Point defines a point in a 2D space
 type Point struct {
-	x, y uint
+	x, y int
 }
 
 // NewPoint is a constructor for points
-func NewPoint(x, y uint) Point {
+func NewPoint(x, y int) Point {
 	return Point{
 		x: x,
 		y: y,
 	}
 }
 
-// Area defines a square area in a 2D space
-type Area struct {
-	point  Point
-	height uint
-	width  uint
+// X returns the X position of the point
+func (p Point) X() int {
+	return p.x
 }
 
-// NewArea is a constructor for areas
-func NewArea(point Point, height, width uint) Area {
-	return Area{
-		point:  point,
-		height: height,
-		width:  width,
-	}
+// Y returns the Y position of the point
+func (p Point) Y() int {
+	return p.y
 }
 
 type Task interface{}
@@ -40,18 +34,47 @@ type Task interface{}
 // DrawRectangle defines the coordinates of how to draw a 2D rectangle
 type DrawRectangle struct {
 	id      uuid.UUID
-	area    Area
+	point   Point
+	height  int
+	width   int
 	filler  rune
 	outline rune
 
 	createdAt time.Time
 }
 
+// Point returns the point where the rectangle starts
+func (dr DrawRectangle) Point() Point {
+	return dr.point
+}
+
+// Height returns the height of the rectangle
+func (dr DrawRectangle) Height() int {
+	return dr.height
+}
+
+// Width returns the width of the rectangle
+func (dr DrawRectangle) Width() int {
+	return dr.width
+}
+
+// Filler returns the rune to fill the rectangle with
+func (dr DrawRectangle) Filler() rune {
+	return dr.filler
+}
+
+// Outline returns the rune to out line the rectangle with
+func (dr DrawRectangle) Outline() rune {
+	return dr.outline
+}
+
 // NewDrawRectangle is a constructor for tasks that draw rectangles
-func NewDrawRectangle(id uuid.UUID, area Area, filler, outline rune, createdAt time.Time) DrawRectangle {
+func NewDrawRectangle(id uuid.UUID, point Point, height, width int, filler, outline rune, createdAt time.Time) DrawRectangle {
 	return DrawRectangle{
 		id:        id,
-		area:      area,
+		point:     point,
+		height:    height,
+		width:     width,
 		filler:    filler,
 		outline:   outline,
 		createdAt: createdAt,
@@ -67,6 +90,7 @@ type Fill struct {
 	createdAt time.Time
 }
 
+// NewFill is a constructor
 func NewFill(id uuid.UUID, point Point, filler rune, createdAt time.Time) Fill {
 	return Fill{
 		id:        id,
@@ -79,8 +103,8 @@ func NewFill(id uuid.UUID, point Point, filler rune, createdAt time.Time) Fill {
 // Canvas defines the 2D space where rectangles can be placed
 type Canvas struct {
 	id     uuid.UUID
-	height uint
-	width  uint
+	height int
+	width  int
 	tasks  []Task
 
 	createdAt time.Time
@@ -92,12 +116,12 @@ func (c Canvas) ID() uuid.UUID {
 }
 
 // Height returns the height of the canvas
-func (c Canvas) Height() uint {
+func (c Canvas) Height() int {
 	return c.height
 }
 
 // Width returns the width of the canvas
-func (c Canvas) Width() uint {
+func (c Canvas) Width() int {
 	return c.width
 }
 
@@ -107,7 +131,7 @@ func (c Canvas) Tasks() []Task {
 }
 
 // NewCanvas is a constructor for canvas
-func NewCanvas(id uuid.UUID, height, width uint, tasks []Task, createdAt time.Time) Canvas {
+func NewCanvas(id uuid.UUID, height, width int, tasks []Task, createdAt time.Time) Canvas {
 	return Canvas{
 		id:        id,
 		height:    height,

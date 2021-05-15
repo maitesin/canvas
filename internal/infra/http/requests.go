@@ -19,15 +19,15 @@ const (
 )
 
 type Point struct {
-	X uint `json:"x"`
-	Y uint `json:"y"`
+	X int `json:"x"`
+	Y int `json:"y"`
 }
 
 type DrawRectangleRequest struct {
 	ID      uuid.UUID `json:"id"`
 	Point   Point     `json:"point"`
-	Height  uint      `json:"height"`
-	Width   uint      `json:"width"`
+	Height  int       `json:"height"`
+	Width   int       `json:"width"`
 	Filler  *string   `json:"filler,omitempty"`
 	Outline *string   `json:"outline,omitempty"`
 }

@@ -10,6 +10,7 @@ import (
 	"github.com/google/uuid"
 	"github.com/maitesin/sketch/internal/app"
 	"github.com/maitesin/sketch/internal/domain"
+	"github.com/maitesin/sketch/internal/infra/ascii"
 )
 
 func CreateCanvasHandler(handler app.CommandHandler) http.HandlerFunc {
@@ -68,6 +69,7 @@ func AddTaskHandler(drawRectangle, addFill app.CommandHandler) http.HandlerFunc 
 				http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
 			}
 		}
+		w.WriteHeader(http.StatusOK)
 	}
 }
 
@@ -83,12 +85,12 @@ func createCmdFromTaskRequest(request TaskRequest, canvasID uuid.UUID) app.Comma
 }
 
 func createDrawRectangleCmdFromTaskRequest(request TaskRequest, canvasID uuid.UUID) app.Command {
-	var filler rune
+	filler := ' '
 	if request.Rectangle.Filler != nil {
 		filler = []rune(*request.Rectangle.Filler)[0]
 	}
 
-	var outline rune
+	outline := filler
 	if request.Rectangle.Outline != nil {
 		outline = []rune(*request.Rectangle.Outline)[0]
 	}
@@ -119,7 +121,7 @@ func createAddFillCmdFromTaskRequest(request TaskRequest, canvasID uuid.UUID) ap
 	}
 }
 
-func RenderCanvasHandler(handler app.QueryHandler) http.HandlerFunc {
+func RenderCanvasHandler(handler app.QueryHandler, renderer ascii.Renderer) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		canvasID, err := uuid.Parse(chi.URLParam(r, "canvasID"))
 		if err != nil {
@@ -148,15 +150,25 @@ func RenderCanvasHandler(handler app.QueryHandler) http.HandlerFunc {
 			return
 		}
 
-		httpResponse := RetrieveCanvas{
-			ID:     canvas.ID(),
-			Height: canvas.Height(),
-			Width:  canvas.Width(),
-			Tasks:  uint(len(canvas.Tasks())),
+		matrix, err := renderer.Render(canvas)
+		if err != nil {
+			http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
+			return
 		}
 
-		if err := json.NewEncoder(w).Encode(httpResponse); err != nil {
-			http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
+		for _, line := range matrix {
+			fmt.Fprintln(w, line)
 		}
+
+		//httpResponse := RetrieveCanvas{
+		//	ID:     canvas.ID(),
+		//	Height: canvas.Height(),
+		//	Width:  canvas.Width(),
+		//	Tasks:  len(canvas.Tasks()),
+		//}
+		//
+		//if err := json.NewEncoder(w).Encode(httpResponse); err != nil {
+		//	http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
+		//}
 	}
 }

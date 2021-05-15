@@ -12,7 +12,9 @@ import (
 func validDrawRectangle() domain.DrawRectangle {
 	return domain.NewDrawRectangle(
 		uuid.New(),
-		domain.NewArea(domain.NewPoint(uint(0), uint(0)), uint(10), uint(10)),
+		domain.NewPoint(0, 0),
+		10,
+		10,
 		'0',
 		'X',
 		time.Now().UTC(),
@@ -22,7 +24,7 @@ func validDrawRectangle() domain.DrawRectangle {
 func validFill() domain.Fill {
 	return domain.NewFill(
 		uuid.New(),
-		domain.NewPoint(uint(12), uint(12)),
+		domain.NewPoint(12, 12),
 		'-',
 		time.Now().UTC(),
 	)
@@ -33,8 +35,8 @@ func validCanvas() *domain.Canvas {
 	fill := validFill()
 	canvas := domain.NewCanvas(
 		uuid.New(),
-		uint(30),
-		uint(30),
+		30,
+		30,
 		[]domain.Task{rectangle, fill},
 		time.Now().UTC(),
 	)
@@ -97,8 +99,8 @@ func TestCanvas(t *testing.T) {
 			mutator: func(canvas *domain.Canvas) *domain.Canvas {
 				c := domain.NewCanvas(
 					uuid.New(),
-					uint(30),
-					uint(30),
+					30,
+					30,
 					nil,
 					time.Now().UTC(),
 				)

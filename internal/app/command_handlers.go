@@ -35,12 +35,12 @@ func (c CreateCanvasCmd) Name() string {
 // CreateCanvasHandler is the handler to create a canvas
 type CreateCanvasHandler struct {
 	repository   CanvasRepository
-	canvasHeight uint
-	canvasWidth  uint
+	canvasHeight int
+	canvasWidth  int
 }
 
 // NewCreateCanvasHandler is a constructor
-func NewCreateCanvasHandler(repository CanvasRepository, height, width uint) CreateCanvasHandler {
+func NewCreateCanvasHandler(repository CanvasRepository, height, width int) CreateCanvasHandler {
 	return CreateCanvasHandler{
 		repository:   repository,
 		canvasHeight: height,
@@ -71,8 +71,8 @@ type DrawRectangleCmd struct {
 	CanvasID    uuid.UUID
 	RectangleID uuid.UUID
 	Point       domain.Point
-	Height      uint
-	Width       uint
+	Height      int
+	Width       int
 	Filler      rune
 	Outline     rune
 }
@@ -106,7 +106,9 @@ func (d DrawRectangleHandler) Handle(ctx context.Context, cmd Command) error {
 
 	rectangle := domain.NewDrawRectangle(
 		drawRectangleCmd.RectangleID,
-		domain.NewArea(drawRectangleCmd.Point, drawRectangleCmd.Height, drawRectangleCmd.Width),
+		drawRectangleCmd.Point,
+		drawRectangleCmd.Height,
+		drawRectangleCmd.Width,
 		drawRectangleCmd.Filler,
 		drawRectangleCmd.Outline,
 		time.Now().UTC(),
