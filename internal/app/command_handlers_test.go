@@ -64,7 +64,7 @@ func TestCreateCanvasHandler(t *testing.T) {
 			t.Parallel()
 
 			repository := tt.repositoryMutator(validCanvasRepository())
-			handler := app.NewCreateCanvasHandler(repository)
+			handler := app.NewCreateCanvasHandler(repository, 30, 30)
 
 			err := handler.Handle(context.Background(), tt.command)
 			if tt.expectedErr != nil {

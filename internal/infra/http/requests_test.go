@@ -10,8 +10,8 @@ import (
 )
 
 func validDrawRectangleRequest() httpx.TaskRequest {
-	filler := 'X'
-	outline := '0'
+	filler := "X"
+	outline := "O"
 	return httpx.TaskRequest{
 		Type: httpx.DrawRectangleRequestType,
 		Rectangle: &httpx.DrawRectangleRequest{
@@ -28,7 +28,7 @@ func validDrawRectangleRequest() httpx.TaskRequest {
 	}
 }
 
-func invalidDrawRectangleRequest() httpx.TaskRequest {
+func invalidDrawRectangleRequestMissingBothFillerAndOutline() httpx.TaskRequest {
 	return httpx.TaskRequest{
 		Type: httpx.DrawRectangleRequestType,
 		Rectangle: &httpx.DrawRectangleRequest{
@@ -43,6 +43,44 @@ func invalidDrawRectangleRequest() httpx.TaskRequest {
 	}
 }
 
+func invalidDrawRectangleRequestWithFillerTooLong() httpx.TaskRequest {
+	filler := "wololo"
+	outline := "O"
+	return httpx.TaskRequest{
+		Type: httpx.DrawRectangleRequestType,
+		Rectangle: &httpx.DrawRectangleRequest{
+			ID: uuid.New(),
+			Point: httpx.Point{
+				X: uint(10),
+				Y: uint(10),
+			},
+			Height:  uint(5),
+			Width:   uint(5),
+			Filler:  &filler,
+			Outline: &outline,
+		},
+	}
+}
+
+func invalidDrawRectangleRequestWithOutlineTooLong() httpx.TaskRequest {
+	filler := "X"
+	outline := "wololo"
+	return httpx.TaskRequest{
+		Type: httpx.DrawRectangleRequestType,
+		Rectangle: &httpx.DrawRectangleRequest{
+			ID: uuid.New(),
+			Point: httpx.Point{
+				X: uint(10),
+				Y: uint(10),
+			},
+			Height:  uint(5),
+			Width:   uint(5),
+			Filler:  &filler,
+			Outline: &outline,
+		},
+	}
+}
+
 func validAddFillRequest() httpx.TaskRequest {
 	return httpx.TaskRequest{
 		Type: httpx.AddFillRequestType,
@@ -52,7 +90,21 @@ func validAddFillRequest() httpx.TaskRequest {
 				X: uint(5),
 				Y: uint(5),
 			},
-			Filler: '-',
+			Filler: "-",
+		},
+	}
+}
+
+func invalidAddFillRequest() httpx.TaskRequest {
+	return httpx.TaskRequest{
+		Type: httpx.AddFillRequestType,
+		Fill: &httpx.AddFillRequest{
+			ID: uuid.New(),
+			Point: httpx.Point{
+				X: uint(5),
+				Y: uint(5),
+			},
+			Filler: "wololo",
 		},
 	}
 }
@@ -78,21 +130,42 @@ func TestTaskRequest_Validate(t *testing.T) {
 		{
 			name: `Given an invalid draw rectangle request because it has both filler and outline missing,
                    when the validate method is called,
-                   then no error is returned`,
-			taskRequest: invalidDrawRectangleRequest(),
+                   then an error is returned`,
+			taskRequest: invalidDrawRectangleRequestMissingBothFillerAndOutline(),
+			expectedErr: errors.New(""),
+		},
+		{
+			name: `Given an invalid draw rectangle request because it has the filler with too many runes,
+                   when the validate method is called,
+                   then an error is returned`,
+			taskRequest: invalidDrawRectangleRequestWithFillerTooLong(),
+			expectedErr: errors.New(""),
+		},
+		{
+			name: `Given an invalid draw rectangle request because it has the outline with too many runes,
+                   when the validate method is called,
+                   then an error is returned`,
+			taskRequest: invalidDrawRectangleRequestWithOutlineTooLong(),
+			expectedErr: errors.New(""),
+		},
+		{
+			name: `Given an invalid add fill request because it has the filler with too many runes,
+                   when the validate method is called,
+                   then an error is returned`,
+			taskRequest: invalidAddFillRequest(),
 			expectedErr: errors.New(""),
 		},
 		{
 			name: `Given an invalid task request because the task type is invalid,
                    when the validate method is called,
-                   then no error is returned`,
+                   then an error is returned`,
 			taskRequest: httpx.TaskRequest{},
 			expectedErr: errors.New(""),
 		},
 		{
 			name: `Given an invalid task request because the task type is draw rectangle, but the rectangle attribute is missing,
                    when the validate method is called,
-                   then no error is returned`,
+                   then an error is returned`,
 			taskRequest: httpx.TaskRequest{
 				Type: httpx.DrawRectangleRequestType,
 			},
@@ -101,7 +174,7 @@ func TestTaskRequest_Validate(t *testing.T) {
 		{
 			name: `Given an invalid task request because the task type is add fill, but the fill attribute is missing,
                    when the validate method is called,
-                   then no error is returned`,
+                   then an error is returned`,
 			taskRequest: httpx.TaskRequest{
 				Type: httpx.AddFillRequestType,
 			},

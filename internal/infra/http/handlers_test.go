@@ -121,62 +121,62 @@ func validAddFillerBodyReader(t *testing.T) io.Reader {
 // nolint:funlen
 func TestAddTaskHandler(t *testing.T) {
 	tests := []struct {
-		name                  string
-		commandHandlerMutator commandHandlerMutator
-		canvasID              string
-		bodyReader            io.Reader
-		expectedStatusCode    int
+		name               string
+		commandHandlerM    commandHandlerMutator
+		canvasID           string
+		bodyReader         io.Reader
+		expectedStatusCode int
 	}{
 		{
 			name: `Given a working command handler, a valid canvas ID, and a valid body request,
                    when the add task handler is called,
                    then a status ok (200) response is returned`,
-			commandHandlerMutator: noopCommandHandlerMutator,
-			canvasID:              uuid.New().String(),
-			bodyReader:            validAddFillerBodyReader(t),
-			expectedStatusCode:    http.StatusOK,
+			commandHandlerM:    noopCommandHandlerMutator,
+			canvasID:           uuid.New().String(),
+			bodyReader:         validAddFillerBodyReader(t),
+			expectedStatusCode: http.StatusOK,
 		},
 		{
 			name: `Given a working command handler, a valid canvas ID, and another valid body request,
                    when the add task handler is called,
                    then a status ok (200) response is returned`,
-			commandHandlerMutator: noopCommandHandlerMutator,
-			canvasID:              uuid.New().String(),
-			bodyReader:            validDrawRectangleBodyReader(t),
-			expectedStatusCode:    http.StatusOK,
+			commandHandlerM:    noopCommandHandlerMutator,
+			canvasID:           uuid.New().String(),
+			bodyReader:         validDrawRectangleBodyReader(t),
+			expectedStatusCode: http.StatusOK,
 		},
 		{
 			name: `Given a working command handler, an invalid canvas ID, and a valid body request,
                    when the add task handler is called,
                    then a status bad request (400) response is returned`,
-			commandHandlerMutator: noopCommandHandlerMutator,
-			canvasID:              "wololo",
-			bodyReader:            validAddFillerBodyReader(t),
-			expectedStatusCode:    http.StatusBadRequest,
+			commandHandlerM:    noopCommandHandlerMutator,
+			canvasID:           "wololo",
+			bodyReader:         validAddFillerBodyReader(t),
+			expectedStatusCode: http.StatusBadRequest,
 		},
 		{
 			name: `Given a working command handler, a valid canvas ID, and a non-JSON body request,
                    when the add task handler is called,
                    then a status bad request (400) response is returned`,
-			commandHandlerMutator: noopCommandHandlerMutator,
-			canvasID:              uuid.New().String(),
-			bodyReader:            func() io.Reader { return strings.NewReader("") }(),
-			expectedStatusCode:    http.StatusBadRequest,
+			commandHandlerM:    noopCommandHandlerMutator,
+			canvasID:           uuid.New().String(),
+			bodyReader:         func() io.Reader { return strings.NewReader("") }(),
+			expectedStatusCode: http.StatusBadRequest,
 		},
 		{
 			name: `Given a working command handler, a valid canvas ID, and an invalid body request,
                    when the add task handler is called,
                    then a status bad request (400) response is returned`,
-			commandHandlerMutator: noopCommandHandlerMutator,
-			canvasID:              uuid.New().String(),
-			bodyReader:            invalidDrawRectangleBodyReader(t),
-			expectedStatusCode:    http.StatusBadRequest,
+			commandHandlerM:    noopCommandHandlerMutator,
+			canvasID:           uuid.New().String(),
+			bodyReader:         invalidDrawRectangleBodyReader(t),
+			expectedStatusCode: http.StatusBadRequest,
 		},
 		{
 			name: `Given a working command handler, a valid canvas ID (but not associated with any canvas), and a valid body request,
                    when the add task handler is called,
                    then a status not found (404) response is returned`,
-			commandHandlerMutator: func(app.CommandHandler) app.CommandHandler {
+			commandHandlerM: func(app.CommandHandler) app.CommandHandler {
 				handler := &CommandHandlerMock{
 					HandleFunc: func(context.Context, app.Command) error {
 						return app.CanvasNotFound{}
@@ -185,14 +185,14 @@ func TestAddTaskHandler(t *testing.T) {
 				return handler
 			},
 			canvasID:           uuid.New().String(),
-			bodyReader:         validAddFillerBodyReader(t),
+			bodyReader:         validDrawRectangleBodyReader(t),
 			expectedStatusCode: http.StatusNotFound,
 		},
 		{
 			name: `Given a non-working command handler, a valid canvas ID, and a valid body request,
                    when the add task handler is called,
                    then a status internal server error (500) response is returned`,
-			commandHandlerMutator: func(app.CommandHandler) app.CommandHandler {
+			commandHandlerM: func(app.CommandHandler) app.CommandHandler {
 				handler := &CommandHandlerMock{
 					HandleFunc: func(context.Context, app.Command) error {
 						return errors.New("something else went wrong")
@@ -201,7 +201,7 @@ func TestAddTaskHandler(t *testing.T) {
 				return handler
 			},
 			canvasID:           uuid.New().String(),
-			bodyReader:         validAddFillerBodyReader(t),
+			bodyReader:         validDrawRectangleBodyReader(t),
 			expectedStatusCode: http.StatusInternalServerError,
 		},
 	}
@@ -210,7 +210,7 @@ func TestAddTaskHandler(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
 
-			commandHandler := tt.commandHandlerMutator(validCommandHandler())
+			commandHandler := tt.commandHandlerM(validCommandHandler())
 
 			chiCtx := chi.NewRouteContext()
 			chiCtx.URLParams.Add("canvasID", tt.canvasID)
@@ -221,7 +221,7 @@ func TestAddTaskHandler(t *testing.T) {
 
 			res := httptest.NewRecorder()
 
-			httpx.AddTaskHandler(commandHandler)(res, req)
+			httpx.AddTaskHandler(commandHandler, noopCommandHandlerMutator(validCommandHandler()))(res, req)
 			result := res.Result()
 			defer result.Body.Close()
 
@@ -242,7 +242,7 @@ func validDrawRectangleBodyReader(t *testing.T) io.Reader {
 func invalidDrawRectangleBodyReader(t *testing.T) io.Reader {
 	t.Helper()
 
-	b, err := json.Marshal(invalidDrawRectangleRequest())
+	b, err := json.Marshal(invalidDrawRectangleRequestMissingBothFillerAndOutline())
 	require.NoError(t, err)
 
 	return bytes.NewReader(b)

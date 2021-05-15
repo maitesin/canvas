@@ -40,8 +40,12 @@ type CreateCanvasHandler struct {
 }
 
 // NewCreateCanvasHandler is a constructor
-func NewCreateCanvasHandler(repository CanvasRepository) CreateCanvasHandler {
-	return CreateCanvasHandler{repository: repository}
+func NewCreateCanvasHandler(repository CanvasRepository, height, width uint) CreateCanvasHandler {
+	return CreateCanvasHandler{
+		repository:   repository,
+		canvasHeight: height,
+		canvasWidth:  width,
+	}
 }
 
 // Handle creates a canvas

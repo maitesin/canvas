@@ -34,7 +34,7 @@ func CreateCanvasHandler(handler app.CommandHandler) http.HandlerFunc {
 	}
 }
 
-func AddTaskHandler(handler app.CommandHandler) http.HandlerFunc {
+func AddTaskHandler(drawRectangle, addFill app.CommandHandler) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		var taskRequest TaskRequest
 		if err := json.NewDecoder(r.Body).Decode(&taskRequest); err != nil {
@@ -54,6 +54,11 @@ func AddTaskHandler(handler app.CommandHandler) http.HandlerFunc {
 		}
 
 		cmd := createCmdFromTaskRequest(taskRequest, canvasID)
+
+		handler := drawRectangle
+		if taskRequest.Type == AddFillRequestType {
+			handler = addFill
+		}
 
 		if err := handler.Handle(r.Context(), cmd); err != nil {
 			switch {
@@ -80,12 +85,12 @@ func createCmdFromTaskRequest(request TaskRequest, canvasID uuid.UUID) app.Comma
 func createDrawRectangleCmdFromTaskRequest(request TaskRequest, canvasID uuid.UUID) app.Command {
 	var filler rune
 	if request.Rectangle.Filler != nil {
-		filler = *request.Rectangle.Filler
+		filler = []rune(*request.Rectangle.Filler)[0]
 	}
 
 	var outline rune
 	if request.Rectangle.Outline != nil {
-		outline = *request.Rectangle.Outline
+		outline = []rune(*request.Rectangle.Outline)[0]
 	}
 
 	return app.DrawRectangleCmd{
@@ -110,7 +115,7 @@ func createAddFillCmdFromTaskRequest(request TaskRequest, canvasID uuid.UUID) ap
 			request.Fill.Point.X,
 			request.Fill.Point.Y,
 		),
-		Filler: request.Fill.Filler,
+		Filler: []rune(request.Fill.Filler)[0],
 	}
 }
 

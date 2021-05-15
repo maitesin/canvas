@@ -28,21 +28,36 @@ type DrawRectangleRequest struct {
 	Point   Point     `json:"point"`
 	Height  uint      `json:"height"`
 	Width   uint      `json:"width"`
-	Filler  *rune     `json:"filler,omitempty"`
-	Outline *rune     `json:"outline,omitempty"`
+	Filler  *string   `json:"filler,omitempty"`
+	Outline *string   `json:"outline,omitempty"`
 }
 
 func (drr DrawRectangleRequest) Validate() error {
 	if drr.Filler == nil && drr.Outline == nil {
 		return errors.New("both filler and outline cannot be empty. Once of them must be present")
 	}
+	if drr.Filler != nil && len(*drr.Filler) != 1 {
+		return errors.New("filler must be a single character")
+	}
+	if drr.Outline != nil && len(*drr.Outline) != 1 {
+		return errors.New("outline must be a single character")
+	}
+
 	return nil
 }
 
 type AddFillRequest struct {
 	ID     uuid.UUID `json:"id"`
 	Point  Point     `json:"point"`
-	Filler rune      `json:"filler"`
+	Filler string    `json:"filler"`
+}
+
+func (afr AddFillRequest) Validate() error {
+	if len(afr.Filler) != 1 {
+		return errors.New("filler must be a single character")
+	}
+
+	return nil
 }
 
 type TaskRequest struct {
@@ -62,9 +77,8 @@ func (tr TaskRequest) Validate() error {
 		if tr.Fill == nil {
 			return fmt.Errorf("fill attribute must be present in task %q", AddFillRequestType)
 		}
+		return tr.Fill.Validate()
 	default:
 		return fmt.Errorf("unsupported operation %q", tr.Type)
 	}
-
-	return nil
 }
