@@ -6,6 +6,7 @@ import (
 
 	"github.com/maitesin/sketch/internal/app"
 	httpx "github.com/maitesin/sketch/internal/infra/http"
+	"github.com/maitesin/sketch/internal/infra/sql"
 )
 
 const (
@@ -19,6 +20,7 @@ const (
 type Config struct {
 	HTTP   httpx.Config
 	Canvas app.Config
+	SQL    sql.Config
 }
 
 func New() (Config, error) {
@@ -40,6 +42,11 @@ func New() (Config, error) {
 		Canvas: app.Config{
 			Height: canvasHeight,
 			Width:  canvasWidth,
+		},
+		SQL: sql.Config{
+			URL:          getEnvOrDefault("DB_URL", "postgres://postgres:postgres@localhost:54321/sketch"),
+			SSLMode:      getEnvOrDefault("DB_SSL_MODE", "disable"),
+			BinaryParams: getEnvOrDefault("DB_BINARY_PARAMETERS", "yes"),
 		},
 	}, nil
 }

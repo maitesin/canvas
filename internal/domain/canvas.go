@@ -43,6 +43,11 @@ type DrawRectangle struct {
 	createdAt time.Time
 }
 
+// ID returns the id of the rectangle
+func (dr DrawRectangle) ID() uuid.UUID {
+	return dr.id
+}
+
 // Point returns the point where the rectangle starts
 func (dr DrawRectangle) Point() Point {
 	return dr.point
@@ -68,6 +73,11 @@ func (dr DrawRectangle) Outline() rune {
 	return dr.outline
 }
 
+// CreatedAt returns the time where the rectangle was created
+func (dr DrawRectangle) CreatedAt() time.Time {
+	return dr.createdAt
+}
+
 // NewDrawRectangle is a constructor for tasks that draw rectangles
 func NewDrawRectangle(id uuid.UUID, point Point, height, width int, filler, outline rune, createdAt time.Time) DrawRectangle {
 	return DrawRectangle{
@@ -90,6 +100,11 @@ type Fill struct {
 	createdAt time.Time
 }
 
+// ID returns the id of the fill
+func (f Fill) ID() uuid.UUID {
+	return f.id
+}
+
 // Point returns the point where the fill starts
 func (f Fill) Point() Point {
 	return f.point
@@ -98,6 +113,11 @@ func (f Fill) Point() Point {
 // Filler returns the rune to fill the area with
 func (f Fill) Filler() rune {
 	return f.filler
+}
+
+// CreatedAt returns the time where the fill was created
+func (f Fill) CreatedAt() time.Time {
+	return f.createdAt
 }
 
 // NewFill is a constructor
@@ -138,6 +158,11 @@ func (c Canvas) Width() int {
 // Tasks returns the slice of tasks to be performed in the canvas
 func (c Canvas) Tasks() []Task {
 	return c.tasks
+}
+
+// CreatedAt returns the time where the canvas was created
+func (c Canvas) CreatedAt() time.Time {
+	return c.createdAt
 }
 
 // NewCanvas is a constructor for canvas

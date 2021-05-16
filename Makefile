@@ -13,5 +13,14 @@ test: generate
 lint: generate
 	golangci-lint run
 
-run:
+start-infra:
+	docker-compose up -d
+
+stop-infra:
+	docker-compose stop
+
+remove-infra:
+	docker-compose down
+
+run: start-infra
 	go run cmd/canvas/main.go
