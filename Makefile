@@ -22,5 +22,5 @@ stop-infra:
 remove-infra:
 	docker-compose down
 
-run: start-infra
+run:
 	go run cmd/canvas/main.go
