@@ -14,7 +14,7 @@ func DefaultRouter(repository app.CanvasRepository, renderer Renderer) httpx.Han
 
 	router.Post("/canvas", CreateCanvasHandler(app.NewCreateCanvasHandler(repository, 12, 32)))
 	router.Get("/canvas/{canvasID}", RenderCanvasHandler(app.NewRetrieveCanvasHandler(repository), renderer))
-	router.Put("/canvas/{canvasID}", AddTaskHandler(
+	router.Post("/canvas/{canvasID}", AddTaskHandler(
 		app.NewDrawRectangleHandler(repository),
 		app.NewAddFillHandler(repository),
 	))

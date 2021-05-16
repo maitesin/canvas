@@ -11,7 +11,7 @@ type Renderer struct{}
 
 func (Renderer) Render(writer io.Writer, c domain.Canvas) error {
 	if c.Height() == 0 {
-		return RendersOutOfBoundsErr
+		return ErrRendersOutOfBounds
 	}
 	canvas := make([][]rune, c.Height())
 	for i := range canvas {
@@ -37,7 +37,7 @@ func (Renderer) Render(writer io.Writer, c domain.Canvas) error {
 					return err
 				}
 			} else {
-				return InvalidTaskErr
+				return ErrInvalidTask
 			}
 		}
 	}
@@ -56,13 +56,13 @@ func drawRectangle(canvas [][]rune, rectangle domain.DrawRectangle) error {
 	h := len(canvas)
 	y := rectangle.Point().Y()
 	if h < y+rectangle.Height() {
-		return RendersOutOfBoundsErr
+		return ErrRendersOutOfBounds
 	}
 
 	w := len(canvas[0])
 	x := rectangle.Point().X()
 	if w < x+rectangle.Width() {
-		return RendersOutOfBoundsErr
+		return ErrRendersOutOfBounds
 	}
 
 	for i := x; i < x+rectangle.Width(); i++ {
@@ -87,13 +87,13 @@ func addFill(canvas [][]rune, fill domain.Fill) error {
 	h := len(canvas)
 	y := fill.Point().Y()
 	if h <= y {
-		return RendersOutOfBoundsErr
+		return ErrRendersOutOfBounds
 	}
 
 	w := len(canvas[0])
 	x := fill.Point().X()
 	if w <= x {
-		return RendersOutOfBoundsErr
+		return ErrRendersOutOfBounds
 	}
 
 	flood(canvas, fill.Point(), canvas[fill.Point().Y()][fill.Point().X()], fill.Filler())

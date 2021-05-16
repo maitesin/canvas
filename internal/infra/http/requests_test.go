@@ -44,7 +44,7 @@ func invalidDrawRectangleRequestMissingBothFillerAndOutline() httpx.TaskRequest 
 }
 
 func invalidDrawRectangleRequestWithFillerTooLong() httpx.TaskRequest {
-	filler := "wololo"
+	filler := "something"
 	outline := "O"
 	return httpx.TaskRequest{
 		Type: httpx.DrawRectangleRequestType,

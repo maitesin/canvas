@@ -3,6 +3,6 @@ package ascii
 import "errors"
 
 var (
-	InvalidTaskErr        = errors.New("invalid task")
-	RendersOutOfBoundsErr = errors.New("rendering out of bounds")
+	ErrInvalidTask        = errors.New("invalid task")
+	ErrRendersOutOfBounds = errors.New("rendering out of bounds")
 )
