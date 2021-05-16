@@ -1,14 +1,17 @@
 package ascii
 
 import (
+	"fmt"
+	"io"
+
 	"github.com/maitesin/sketch/internal/domain"
 )
 
 type Renderer struct{}
 
-func (Renderer) Render(c domain.Canvas) ([]string, error) {
+func (Renderer) Render(writer io.Writer, c domain.Canvas) error {
 	if c.Height() == 0 {
-		return nil, RendersOutOfBoundsErr
+		return RendersOutOfBoundsErr
 	}
 	canvas := make([][]rune, c.Height())
 	for i := range canvas {
@@ -24,26 +27,29 @@ func (Renderer) Render(c domain.Canvas) ([]string, error) {
 		if ok {
 			err := drawRectangle(canvas, rectangle)
 			if err != nil {
-				return nil, err
+				return err
 			}
 		} else {
 			fill, ok := tasks[i].(domain.Fill)
 			if ok {
 				err := addFill(canvas, fill)
 				if err != nil {
-					return nil, err
+					return err
 				}
 			} else {
-				return nil, InvalidTaskErr
+				return InvalidTaskErr
 			}
 		}
 	}
 
-	result := make([]string, len(canvas))
 	for i := range canvas {
-		result[i] = string(canvas[i])
+		_, err := fmt.Fprintln(writer, string(canvas[i]))
+		if err != nil {
+			return err
+		}
 	}
-	return result, nil
+
+	return nil
 }
 
 func drawRectangle(canvas [][]rune, rectangle domain.DrawRectangle) error {

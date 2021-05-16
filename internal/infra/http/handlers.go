@@ -10,7 +10,6 @@ import (
 	"github.com/google/uuid"
 	"github.com/maitesin/sketch/internal/app"
 	"github.com/maitesin/sketch/internal/domain"
-	"github.com/maitesin/sketch/internal/infra/ascii"
 )
 
 func CreateCanvasHandler(handler app.CommandHandler) http.HandlerFunc {
@@ -121,7 +120,7 @@ func createAddFillCmdFromTaskRequest(request TaskRequest, canvasID uuid.UUID) ap
 	}
 }
 
-func RenderCanvasHandler(handler app.QueryHandler, renderer ascii.Renderer) http.HandlerFunc {
+func RenderCanvasHandler(handler app.QueryHandler, renderer Renderer) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		canvasID, err := uuid.Parse(chi.URLParam(r, "canvasID"))
 		if err != nil {
@@ -150,25 +149,10 @@ func RenderCanvasHandler(handler app.QueryHandler, renderer ascii.Renderer) http
 			return
 		}
 
-		matrix, err := renderer.Render(canvas)
+		err = renderer.Render(w, canvas)
 		if err != nil {
 			http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
 			return
 		}
-
-		for _, line := range matrix {
-			fmt.Fprintln(w, line)
-		}
-
-		//httpResponse := RetrieveCanvas{
-		//	ID:     canvas.ID(),
-		//	Height: canvas.Height(),
-		//	Width:  canvas.Width(),
-		//	Tasks:  len(canvas.Tasks()),
-		//}
-		//
-		//if err := json.NewEncoder(w).Encode(httpResponse); err != nil {
-		//	http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
-		//}
 	}
 }
