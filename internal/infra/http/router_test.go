@@ -11,6 +11,7 @@ import (
 	"testing"
 
 	"github.com/google/uuid"
+	"github.com/maitesin/sketch/config"
 	"github.com/maitesin/sketch/internal/app"
 	"github.com/maitesin/sketch/internal/domain"
 	httpx "github.com/maitesin/sketch/internal/infra/http"
@@ -93,7 +94,10 @@ func TestDefaultRouter_CreateCanvas(t *testing.T) {
 
 			repository := tt.repositoryMutator(validCanvasRepository())
 
-			server := httptest.NewServer(httpx.DefaultRouter(repository, &RendererMock{}))
+			cfg, err := config.New()
+			require.NoError(t, err)
+
+			server := httptest.NewServer(httpx.DefaultRouter(cfg.Canvas, repository, &RendererMock{}))
 			defer server.Close()
 
 			client := server.Client()
@@ -176,7 +180,10 @@ func TestDefaultRouter_AddTaskToCanvas(t *testing.T) {
 
 			repository := tt.repositoryMutator(validCanvasRepository())
 
-			server := httptest.NewServer(httpx.DefaultRouter(repository, &RendererMock{}))
+			cfg, err := config.New()
+			require.NoError(t, err)
+
+			server := httptest.NewServer(httpx.DefaultRouter(cfg.Canvas, repository, &RendererMock{}))
 			defer server.Close()
 
 			client := server.Client()
@@ -259,7 +266,10 @@ func TestDefaultRouter_RenderCanvas(t *testing.T) {
 			repository := tt.repositoryMutator(validCanvasRepository())
 			renderer := tt.rendererMutator(validRenderer())
 
-			server := httptest.NewServer(httpx.DefaultRouter(repository, renderer))
+			cfg, err := config.New()
+			require.NoError(t, err)
+
+			server := httptest.NewServer(httpx.DefaultRouter(cfg.Canvas, repository, renderer))
 			defer server.Close()
 
 			client := server.Client()
