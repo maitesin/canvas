@@ -90,6 +90,16 @@ type Fill struct {
 	createdAt time.Time
 }
 
+// Point returns the point where the fill starts
+func (f Fill) Point() Point {
+	return f.point
+}
+
+// Filler returns the rune to fill the area with
+func (f Fill) Filler() rune {
+	return f.filler
+}
+
 // NewFill is a constructor
 func NewFill(id uuid.UUID, point Point, filler rune, createdAt time.Time) Fill {
 	return Fill{

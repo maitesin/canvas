@@ -78,5 +78,31 @@ func drawRectangle(canvas [][]rune, rectangle domain.DrawRectangle) error {
 }
 
 func addFill(canvas [][]rune, fill domain.Fill) error {
+	h := len(canvas)
+	y := fill.Point().Y()
+	if h <= y {
+		return RendersOutOfBoundsErr
+	}
+
+	w := len(canvas[0])
+	x := fill.Point().X()
+	if w <= x {
+		return RendersOutOfBoundsErr
+	}
+
+	flood(canvas, fill.Point(), canvas[fill.Point().Y()][fill.Point().X()], fill.Filler())
 	return nil
+}
+
+func flood(canvas [][]rune, point domain.Point, old, new rune) {
+	if len(canvas) <= point.Y() || len(canvas[0]) <= point.X() || point.Y() < 0 || point.X() < 0 {
+		return
+	}
+	if canvas[point.Y()][point.X()] == old {
+		canvas[point.Y()][point.X()] = new
+		flood(canvas, domain.NewPoint(point.X()+1, point.Y()), old, new)
+		flood(canvas, domain.NewPoint(point.X()-1, point.Y()), old, new)
+		flood(canvas, domain.NewPoint(point.X(), point.Y()+1), old, new)
+		flood(canvas, domain.NewPoint(point.X(), point.Y()-1), old, new)
+	}
 }
