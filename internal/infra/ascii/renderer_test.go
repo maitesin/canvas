@@ -125,32 +125,50 @@ OOOOOXXXXX-----------
 `
 }
 
+func invalidCanvas() domain.Canvas {
+	return domain.NewCanvas(
+		uuid.New(),
+		10,
+		10,
+		[]domain.Task{"this will fail"},
+		time.Now().UTC(),
+	)
+}
+
 func TestRenderer(t *testing.T) {
 	tests := []struct {
 		name           string
 		canvas         domain.Canvas
 		expectedOutput string
+		expectedErr    error
 	}{
 		{
 			name: `Given the canvas from the fixture 1,
-                   when the render method is called from the ASCII renderer
+                   when the render method is called from the ASCII renderer,
                    then it outputs the output shown in the description of the task`,
 			canvas:         canvasFixture1(),
 			expectedOutput: outputFixture1(),
 		},
 		{
 			name: `Given the canvas from the fixture 2,
-                   when the render method is called from the ASCII renderer
+                   when the render method is called from the ASCII renderer,
                    then it outputs the output shown in the description of the task`,
 			canvas:         canvasFixture2(),
 			expectedOutput: outputFixture2(),
 		},
 		{
 			name: `Given the canvas from the fixture 3,
-                   when the render method is called from the ASCII renderer
+                   when the render method is called from the ASCII renderer,
                    then it outputs the output shown in the description of the task`,
 			canvas:         canvasFixture3(),
 			expectedOutput: outputFixture3(),
+		},
+		{
+			name: `Given a canvas with an invalid task,
+                   when the render method is called from the ASCII renderer,
+                   then it will return an error of invalid task`,
+			canvas:      invalidCanvas(),
+			expectedErr: ascii.ErrInvalidTask,
 		},
 	}
 	for _, tt := range tests {
@@ -161,8 +179,12 @@ func TestRenderer(t *testing.T) {
 			re := ascii.Renderer{}
 			writer := &bytes.Buffer{}
 			err := re.Render(writer, tt.canvas)
-			require.NoError(t, err)
-			require.Equal(t, tt.expectedOutput, writer.String())
+			if tt.expectedErr != nil {
+				require.ErrorAs(t, err, &tt.expectedErr)
+			} else {
+				require.NoError(t, err)
+				require.Equal(t, tt.expectedOutput, writer.String())
+			}
 		})
 	}
 }

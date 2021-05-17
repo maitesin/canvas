@@ -10,9 +10,6 @@ import (
 type Renderer struct{}
 
 func (Renderer) Render(writer io.Writer, c domain.Canvas) error {
-	if c.Height() == 0 {
-		return ErrRendersOutOfBounds
-	}
 	canvas := make([][]rune, c.Height())
 	for i := range canvas {
 		canvas[i] = make([]rune, c.Width())
@@ -25,17 +22,11 @@ func (Renderer) Render(writer io.Writer, c domain.Canvas) error {
 	for i := range tasks {
 		rectangle, ok := tasks[i].(domain.DrawRectangle)
 		if ok {
-			err := drawRectangle(canvas, rectangle)
-			if err != nil {
-				return err
-			}
+			drawRectangle(canvas, rectangle)
 		} else {
 			fill, ok := tasks[i].(domain.Fill)
 			if ok {
-				err := addFill(canvas, fill)
-				if err != nil {
-					return err
-				}
+				addFill(canvas, fill)
 			} else {
 				return ErrInvalidTask
 			}
@@ -52,18 +43,9 @@ func (Renderer) Render(writer io.Writer, c domain.Canvas) error {
 	return nil
 }
 
-func drawRectangle(canvas [][]rune, rectangle domain.DrawRectangle) error {
-	h := len(canvas)
+func drawRectangle(canvas [][]rune, rectangle domain.DrawRectangle) {
 	y := rectangle.Point().Y()
-	if h < y+rectangle.Height() {
-		return ErrRendersOutOfBounds
-	}
-
-	w := len(canvas[0])
 	x := rectangle.Point().X()
-	if w < x+rectangle.Width() {
-		return ErrRendersOutOfBounds
-	}
 
 	for i := x; i < x+rectangle.Width(); i++ {
 		canvas[y][i] = rectangle.Outline()
@@ -79,25 +61,10 @@ func drawRectangle(canvas [][]rune, rectangle domain.DrawRectangle) error {
 			canvas[j][i] = rectangle.Filler()
 		}
 	}
-
-	return nil
 }
 
-func addFill(canvas [][]rune, fill domain.Fill) error {
-	h := len(canvas)
-	y := fill.Point().Y()
-	if h <= y {
-		return ErrRendersOutOfBounds
-	}
-
-	w := len(canvas[0])
-	x := fill.Point().X()
-	if w <= x {
-		return ErrRendersOutOfBounds
-	}
-
+func addFill(canvas [][]rune, fill domain.Fill) {
 	flood(canvas, fill.Point(), canvas[fill.Point().Y()][fill.Point().X()], fill.Filler())
-	return nil
 }
 
 func flood(canvas [][]rune, point domain.Point, old, new rune) {
