@@ -177,11 +177,22 @@ func NewCanvas(id uuid.UUID, height, width int, tasks []Task, createdAt time.Tim
 }
 
 // AddDrawRectangle adds a rectangle to an existing canvas
-func (c *Canvas) AddDrawRectangle(rectangle DrawRectangle) {
+func (c *Canvas) AddDrawRectangle(rectangle DrawRectangle) error {
+	if c.height < rectangle.height+rectangle.point.x ||
+		c.width < rectangle.width+rectangle.point.y {
+		return ErrOutOfBounds
+	}
+
 	c.tasks = append(c.tasks, rectangle)
+	return nil
 }
 
 // AddFill adds a fill operation to an existing canvas
-func (c *Canvas) AddFill(fill Fill) {
+func (c *Canvas) AddFill(fill Fill) error {
+	if c.height < fill.point.x || c.width < fill.point.y {
+		return ErrOutOfBounds
+	}
+
 	c.tasks = append(c.tasks, fill)
+	return nil
 }
