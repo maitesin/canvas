@@ -13,21 +13,21 @@ const (
 )
 
 type InvalidCommandError struct {
-	received Command
-	expected Command
+	Received Command
+	Expected Command
 }
 
 func (ice InvalidCommandError) Error() string {
-	return fmt.Sprintf(errMsgInvalidCommand, ice.received.Name(), ice.expected.Name())
+	return fmt.Sprintf(errMsgInvalidCommand, ice.Received.Name(), ice.Expected.Name())
 }
 
 type InvalidQueryError struct {
-	received Query
-	expected Query
+	Received Query
+	Expected Query
 }
 
 func (iqe InvalidQueryError) Error() string {
-	return fmt.Sprintf(errMsgInvalidQuery, iqe.received.Name(), iqe.expected.Name())
+	return fmt.Sprintf(errMsgInvalidQuery, iqe.Received.Name(), iqe.Expected.Name())
 }
 
 type CanvasNotFound struct {

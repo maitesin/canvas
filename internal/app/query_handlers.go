@@ -13,7 +13,7 @@ type Query interface {
 	Name() string
 }
 
-// QueryResponse defines the response to be received from the QueryHandler
+// QueryResponse defines the response to be Received from the QueryHandler
 type QueryResponse interface{}
 
 //go:generate moq -out ../infra/http/zmock_query_test.go -pkg http_test . QueryResponse QueryHandler
@@ -47,7 +47,7 @@ func NewRetrieveCanvasHandler(repository CanvasRepository) RetrieveCanvasHandler
 func (r RetrieveCanvasHandler) Handle(ctx context.Context, query Query) (QueryResponse, error) {
 	retrieveQuery, ok := query.(RetrieveCanvasQuery)
 	if !ok {
-		return nil, InvalidQueryError{expected: RetrieveCanvasQuery{}, received: query}
+		return nil, InvalidQueryError{Expected: RetrieveCanvasQuery{}, Received: query}
 	}
 
 	return r.repository.FindByID(ctx, retrieveQuery.ID)

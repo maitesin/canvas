@@ -3,6 +3,7 @@ package app_test
 import (
 	"context"
 	"testing"
+	"time"
 
 	"github.com/google/uuid"
 	"github.com/maitesin/sketch/internal/app"
@@ -13,7 +14,7 @@ import (
 func validCanvasRepository() app.CanvasRepository {
 	return &CanvasRepositoryMock{
 		FindByIDFunc: func(context.Context, uuid.UUID) (domain.Canvas, error) {
-			return domain.Canvas{}, nil
+			return domain.NewCanvas(uuid.New(), 30, 30, nil, time.Now().UTC()), nil
 		},
 		InsertFunc: func(context.Context, domain.Canvas) error {
 			return nil

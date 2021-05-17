@@ -143,6 +143,21 @@ func TestDrawRectangleHandler(t *testing.T) {
 			},
 			expectedErr: app.CanvasNotFound{},
 		},
+		{
+			name: `Given a valid command, but with a rectangle too big for the canvas and a working canvas repository
+                   when the draw rectangle handler is executed
+                   then an error is returned`,
+			command: app.DrawRectangleCmd{
+				CanvasID:    uuid.New(),
+				RectangleID: uuid.New(),
+				Point:       domain.NewPoint(0, 0),
+				Height:      100,
+				Width:       100,
+				Filler:      '0',
+			},
+			repositoryMutator: noopRepositoryMutator,
+			expectedErr:       domain.ErrOutOfBounds,
+		},
 	}
 	for _, tt := range tests {
 		tt := tt
@@ -225,6 +240,19 @@ func TestAddFillHandler(t *testing.T) {
 				return repository
 			},
 			expectedErr: app.CanvasNotFound{},
+		},
+		{
+			name: `Given a valid command, but with the point out of bounds and a working canvas repository
+                   when the add fill handler is executed
+                   then an error is returned`,
+			command: app.AddFillCmd{
+				CanvasID: uuid.New(),
+				FillID:   uuid.New(),
+				Point:    domain.NewPoint(100, 100),
+				Filler:   '-',
+			},
+			repositoryMutator: noopRepositoryMutator,
+			expectedErr:       domain.ErrOutOfBounds,
 		},
 	}
 	for _, tt := range tests {

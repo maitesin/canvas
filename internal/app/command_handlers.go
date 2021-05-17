@@ -52,7 +52,7 @@ func NewCreateCanvasHandler(repository CanvasRepository, height, width int) Crea
 func (c CreateCanvasHandler) Handle(ctx context.Context, cmd Command) error {
 	createCmd, ok := cmd.(CreateCanvasCmd)
 	if !ok {
-		return InvalidCommandError{expected: CreateCanvasCmd{}, received: cmd}
+		return InvalidCommandError{Expected: CreateCanvasCmd{}, Received: cmd}
 	}
 
 	canvas := domain.NewCanvas(
@@ -96,7 +96,7 @@ func NewDrawRectangleHandler(repository CanvasRepository) DrawRectangleHandler {
 func (d DrawRectangleHandler) Handle(ctx context.Context, cmd Command) error {
 	drawRectangleCmd, ok := cmd.(DrawRectangleCmd)
 	if !ok {
-		return InvalidCommandError{expected: DrawRectangleCmd{}, received: cmd}
+		return InvalidCommandError{Expected: DrawRectangleCmd{}, Received: cmd}
 	}
 
 	canvas, err := d.repository.FindByID(ctx, drawRectangleCmd.CanvasID)
@@ -114,7 +114,10 @@ func (d DrawRectangleHandler) Handle(ctx context.Context, cmd Command) error {
 		time.Now().UTC(),
 	)
 
-	canvas.AddDrawRectangle(rectangle)
+	err = canvas.AddDrawRectangle(rectangle)
+	if err != nil {
+		return err
+	}
 
 	return d.repository.Update(ctx, canvas)
 }
@@ -146,7 +149,7 @@ func NewAddFillHandler(repository CanvasRepository) AddFillHandler {
 func (f AddFillHandler) Handle(ctx context.Context, cmd Command) error {
 	addFillCmd, ok := cmd.(AddFillCmd)
 	if !ok {
-		return InvalidCommandError{expected: AddFillCmd{}, received: cmd}
+		return InvalidCommandError{Expected: AddFillCmd{}, Received: cmd}
 	}
 
 	canvas, err := f.repository.FindByID(ctx, addFillCmd.CanvasID)
@@ -161,7 +164,10 @@ func (f AddFillHandler) Handle(ctx context.Context, cmd Command) error {
 		time.Now().UTC(),
 	)
 
-	canvas.AddFill(fill)
+	err = canvas.AddFill(fill)
+	if err != nil {
+		return err
+	}
 
 	return f.repository.Update(ctx, canvas)
 }
