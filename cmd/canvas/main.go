@@ -39,7 +39,8 @@ func main() {
 
 	err = http.ListenAndServe(
 		strings.Join([]string{cfg.HTTP.Host, cfg.HTTP.Port}, ":"),
-		httpx.DefaultRouter(cfg.Canvas, canvasRepository, renderer))
+		httpx.DefaultRouter(cfg.Canvas, canvasRepository, renderer),
+	)
 	if err != nil {
 		fmt.Printf("Failed to start service: %s\n", err)
 	}
