@@ -60,16 +60,26 @@ Besides the mandatory dependencies to run the project we will need the following
 make tools-lint
 ```
 
-In order to run the test you just need the following command:
+To run the linting checks it is similar to the previous command:
+
+```bash
+make lint
+```
+
+### Unit test
+
+In order to run the unit test you just need the following command:
 
 ```bash
 make test
 ```
 
-To run the linting checks it is similar to the previous command:
+### Integration test
+
+Before running the integration test you need the DB to be up and running. Please check the `Start the DB` section above.
 
 ```bash
-make lint
+make test-integration
 ```
 
 ## Configuration
