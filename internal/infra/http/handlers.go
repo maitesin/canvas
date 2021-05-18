@@ -10,12 +10,15 @@ import (
 	"github.com/google/uuid"
 	"github.com/maitesin/sketch/internal/app"
 	"github.com/maitesin/sketch/internal/domain"
+	log "github.com/sirupsen/logrus" //nolint: depguard
 )
 
 func CreateCanvasHandler(handler app.CommandHandler) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
+		logger := LoggerFromContext(r.Context())
 		var createCanvasRequest CreateCanvasRequest
 		if err := json.NewDecoder(r.Body).Decode(&createCanvasRequest); err != nil {
+			logger.Error(err)
 			http.Error(w, http.StatusText(http.StatusBadRequest), http.StatusBadRequest)
 			return
 		}
@@ -25,6 +28,7 @@ func CreateCanvasHandler(handler app.CommandHandler) http.HandlerFunc {
 		}
 
 		if err := handler.Handle(r.Context(), cmd); err != nil {
+			logger.WithField("canvas_id", createCanvasRequest.ID).Error(err)
 			http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
 			return
 		}
@@ -36,19 +40,23 @@ func CreateCanvasHandler(handler app.CommandHandler) http.HandlerFunc {
 
 func AddTaskHandler(drawRectangle, addFill app.CommandHandler) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
+		logger := LoggerFromContext(r.Context())
 		var taskRequest TaskRequest
 		if err := json.NewDecoder(r.Body).Decode(&taskRequest); err != nil {
+			logger.Error(err)
 			http.Error(w, http.StatusText(http.StatusBadRequest), http.StatusBadRequest)
 			return
 		}
 
 		if err := taskRequest.Validate(); err != nil {
+			logger.Error(err)
 			http.Error(w, http.StatusText(http.StatusBadRequest), http.StatusBadRequest)
 			return
 		}
 
 		canvasID, err := uuid.Parse(chi.URLParam(r, "canvasID"))
 		if err != nil {
+			logger.Error(err)
 			http.Error(w, http.StatusText(http.StatusBadRequest), http.StatusBadRequest)
 			return
 		}
@@ -61,6 +69,7 @@ func AddTaskHandler(drawRectangle, addFill app.CommandHandler) http.HandlerFunc 
 		}
 
 		if err := handler.Handle(r.Context(), cmd); err != nil {
+			logger.WithField("canvas_id", canvasID).Error(err)
 			switch {
 			case errors.As(err, &app.CanvasNotFound{}):
 				http.Error(w, http.StatusText(http.StatusNotFound), http.StatusNotFound)
@@ -122,10 +131,17 @@ func createAddFillCmdFromTaskRequest(request TaskRequest, canvasID uuid.UUID) ap
 
 func RenderCanvasHandler(handler app.QueryHandler, renderer Renderer) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
+		logger := LoggerFromContext(r.Context())
+
 		canvasID, err := uuid.Parse(chi.URLParam(r, "canvasID"))
 		if err != nil {
+			logger.Error(err)
 			http.Error(w, http.StatusText(http.StatusBadRequest), http.StatusBadRequest)
 			return
+		}
+
+		loggerFields := log.Fields{
+			"canvas_id": canvasID,
 		}
 
 		query := app.RetrieveCanvasQuery{
@@ -134,6 +150,7 @@ func RenderCanvasHandler(handler app.QueryHandler, renderer Renderer) http.Handl
 
 		queryResponse, err := handler.Handle(r.Context(), query)
 		if err != nil {
+			logger.WithFields(loggerFields).Error(err)
 			switch {
 			case errors.As(err, &app.CanvasNotFound{}):
 				http.Error(w, http.StatusText(http.StatusNotFound), http.StatusNotFound)
@@ -145,12 +162,14 @@ func RenderCanvasHandler(handler app.QueryHandler, renderer Renderer) http.Handl
 
 		canvas, ok := queryResponse.(domain.Canvas)
 		if !ok {
+			logger.WithFields(loggerFields).Error(err)
 			http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
 			return
 		}
 
 		err = renderer.Render(w, canvas)
 		if err != nil {
+			logger.Error(err)
 			http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
 			return
 		}

@@ -17,6 +17,7 @@ import (
 	"github.com/maitesin/sketch/internal/app"
 	"github.com/maitesin/sketch/internal/domain"
 	httpx "github.com/maitesin/sketch/internal/infra/http"
+	log "github.com/sirupsen/logrus" //nolint: depguard
 	"github.com/stretchr/testify/require"
 )
 
@@ -95,7 +96,10 @@ func TestCreateCanvasHandler(t *testing.T) {
 
 			commandHandler := tt.commandHandlerMutator(validCommandHandler())
 
-			req, err := http.NewRequestWithContext(context.Background(), http.MethodPut, "/canvas/", tt.bodyReader)
+			logger := log.New()
+			ctx := httpx.ContextWithLogger(context.Background(), logger)
+
+			req, err := http.NewRequestWithContext(ctx, http.MethodPut, "/canvas/", tt.bodyReader)
 			require.NoError(t, err)
 
 			res := httptest.NewRecorder()
@@ -234,6 +238,8 @@ func TestAddTaskHandler(t *testing.T) {
 			chiCtx := chi.NewRouteContext()
 			chiCtx.URLParams.Add("canvasID", tt.canvasID)
 			ctx := context.WithValue(context.Background(), chi.RouteCtxKey, chiCtx)
+			logger := log.New()
+			ctx = httpx.ContextWithLogger(ctx, logger)
 
 			req, err := http.NewRequestWithContext(ctx, http.MethodPost, fmt.Sprintf("/canvas/%s/fill", tt.canvasID), tt.bodyReader)
 			require.NoError(t, err)
@@ -364,6 +370,8 @@ func TestRenderCanvasHandler(t *testing.T) {
 			chiCtx := chi.NewRouteContext()
 			chiCtx.URLParams.Add("canvasID", tt.canvasID)
 			ctx := context.WithValue(context.Background(), chi.RouteCtxKey, chiCtx)
+			logger := log.New()
+			ctx = httpx.ContextWithLogger(ctx, logger)
 
 			req, err := http.NewRequestWithContext(ctx, http.MethodGet, fmt.Sprintf("/canvas/%s", uuid.New()), nil)
 			require.NoError(t, err)

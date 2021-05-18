@@ -16,6 +16,7 @@ import (
 	"github.com/maitesin/sketch/internal/app"
 	"github.com/maitesin/sketch/internal/domain"
 	httpx "github.com/maitesin/sketch/internal/infra/http"
+	log "github.com/sirupsen/logrus" //nolint: depguard
 	"github.com/stretchr/testify/require"
 )
 
@@ -98,7 +99,10 @@ func TestDefaultRouter_CreateCanvas(t *testing.T) {
 			cfg, err := config.New()
 			require.NoError(t, err)
 
-			server := httptest.NewServer(httpx.DefaultRouter(cfg.Canvas, repository, &RendererMock{}))
+			logger := log.New()
+			ctx := httpx.ContextWithLogger(context.Background(), logger)
+
+			server := httptest.NewServer(httpx.DefaultRouter(ctx, cfg.Canvas, repository, &RendererMock{}))
 			defer server.Close()
 
 			client := server.Client()
@@ -184,7 +188,10 @@ func TestDefaultRouter_AddTaskToCanvas(t *testing.T) {
 			cfg, err := config.New()
 			require.NoError(t, err)
 
-			server := httptest.NewServer(httpx.DefaultRouter(cfg.Canvas, repository, &RendererMock{}))
+			logger := log.New()
+			ctx := httpx.ContextWithLogger(context.Background(), logger)
+
+			server := httptest.NewServer(httpx.DefaultRouter(ctx, cfg.Canvas, repository, &RendererMock{}))
 			defer server.Close()
 
 			client := server.Client()
@@ -270,7 +277,10 @@ func TestDefaultRouter_RenderCanvas(t *testing.T) {
 			cfg, err := config.New()
 			require.NoError(t, err)
 
-			server := httptest.NewServer(httpx.DefaultRouter(cfg.Canvas, repository, renderer))
+			logger := log.New()
+			ctx := httpx.ContextWithLogger(context.Background(), logger)
+
+			server := httptest.NewServer(httpx.DefaultRouter(ctx, cfg.Canvas, repository, renderer))
 			defer server.Close()
 
 			client := server.Client()

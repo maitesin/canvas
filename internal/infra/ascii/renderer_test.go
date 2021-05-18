@@ -101,7 +101,9 @@ OOOOOXXXXX
 `
 }
 
-func canvasFixture3() domain.Canvas {
+func canvasFixture3(t *testing.T) domain.Canvas {
+	t.Helper()
+
 	fill := domain.NewFill(
 		uuid.New(),
 		domain.NewPoint(0, 0),
@@ -109,7 +111,8 @@ func canvasFixture3() domain.Canvas {
 		time.Now().UTC(),
 	)
 	canvas := canvasFixture2()
-	canvas.AddFill(fill)
+	err := canvas.AddFill(fill)
+	require.NoError(t, err)
 	return canvas
 }
 
@@ -160,7 +163,7 @@ func TestRenderer(t *testing.T) {
 			name: `Given the canvas from the fixture 3,
                    when the render method is called from the ASCII renderer,
                    then it outputs the output shown in the description of the task`,
-			canvas:         canvasFixture3(),
+			canvas:         canvasFixture3(t),
 			expectedOutput: outputFixture3(),
 		},
 		{
