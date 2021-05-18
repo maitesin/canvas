@@ -10,6 +10,9 @@ generate:
 test: generate
 	go test -cover -v ./...
 
+test-integration: generate
+	go test -tags integration -v ./...
+
 lint: generate
 	golangci-lint run
 
