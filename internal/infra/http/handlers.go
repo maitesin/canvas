@@ -73,6 +73,8 @@ func AddTaskHandler(drawRectangle, addFill app.CommandHandler) http.HandlerFunc 
 			switch {
 			case errors.As(err, &app.CanvasNotFound{}):
 				http.Error(w, http.StatusText(http.StatusNotFound), http.StatusNotFound)
+			case errors.Is(err, domain.ErrOutOfBounds):
+				http.Error(w, http.StatusText(http.StatusUnprocessableEntity), http.StatusUnprocessableEntity)
 			default:
 				http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
 			}

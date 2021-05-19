@@ -212,6 +212,22 @@ func TestAddTaskHandler(t *testing.T) {
 			expectedStatusCode: http.StatusNotFound,
 		},
 		{
+			name: `Given a working command handler, a valid canvas ID, and a valid body request, but that the rectangle is too large for the canvas,
+                   when the add task handler is called,
+                   then a status unprocessable entity (422) response is returned`,
+			commandHandlerMutator: func(app.CommandHandler) app.CommandHandler {
+				handler := &CommandHandlerMock{
+					HandleFunc: func(context.Context, app.Command) error {
+						return domain.ErrOutOfBounds
+					},
+				}
+				return handler
+			},
+			canvasID:           uuid.New().String(),
+			bodyReader:         validDrawRectangleBodyReader(t),
+			expectedStatusCode: http.StatusUnprocessableEntity,
+		},
+		{
 			name: `Given a non-working command handler, a valid canvas ID, and a valid body request,
                    when the add task handler is called,
                    then a status internal server error (500) response is returned`,
