@@ -22,7 +22,7 @@ The canvas project fulfills the requirements of the Sketch Challenge as it will 
 
 ## How to run the project
 
-The following dependencies are mandatory for the project to be executed. `make`, `docker`, `docker-compose`, and `go`.
+The following dependencies are required for the project to be executed. `make`, `docker`, `docker-compose`, and `go`.
 
 ### Start the DB
 
@@ -57,7 +57,7 @@ make remove-infra
 Besides the mandatory dependencies to run the project we will need the following extra dependencies to run test and run linting checks in the project. `golangci-lint`, and `moq`. They can be installed with the following:
 
 ```bash
-make tools-lint
+make tools
 ```
 
 To run the linting checks it is similar to the previous command:
@@ -141,7 +141,7 @@ By sending a POST request to the `/canvas/{canvasID}` endpoint with a JSON body 
 #### Example
 
 ```bash
-$ curl -i -X POST "http://localhost:8080/canvas/02d1170b-67ce-4d19-ae99-acc9ef03c808" -d '{"type":"draw_rectangle","rectangle":{"id":"2c6f53d6-49b3-4e69-8522-fa6b0f06e2f6","point":{"x":5,"y":5},"height":3,"width":5,"filler":"X","outline":"0"}}'
+$ curl -i -X POST "http://localhost:8080/canvas/02d1170b-67ce-4d19-ae99-acc9ef03c808" -d '{"type":"draw_rectangle","rectangle":{"id":"2fb51cca-c789-4938-9d66-948c16a4d42f","point":{"x":5,"y":5},"height":3,"width":5,"filler":"X","outline":"0"}}'
 HTTP/1.1 200 OK
 Date: Mon, 17 May 2021 13:16:25 GMT
 Content-Length: 0
@@ -171,7 +171,7 @@ By sending a POST request to the `/canvas/{canvasID}` endpoint with a JSON body 
 #### Example
 
 ```bash
-$ curl -i -X POST "http://localhost:8080/canvas/02d1170b-67ce-4d19-ae99-acc9ef03c808" -d '{"type":"add_fill","fill":{"id":"2c6f33d6-49b3-6e69-8522-fa6b0f06e2f6","point":{"x":0,"y":0},"filler":"-"}}'
+$ curl -i -X POST "http://localhost:8080/canvas/02d1170b-67ce-4d19-ae99-acc9ef03c808" -d '{"type":"add_fill","fill":{"id":"2c2daf0d-97b1-4274-a9ca-06d3c7b167cf","point":{"x":0,"y":0},"filler":"-"}}'
 HTTP/1.1 200 OK
 Date: Mon, 17 May 2021 13:19:42 GMT
 Content-Length: 0

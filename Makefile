@@ -1,8 +1,6 @@
-tools-generate:
-	go get -u github.com/matryer/moq
-
-tools-lint: tools-generate
-	go get -u github.com/golangci/golangci-lint/cmd/golangci-lint
+tools:
+	go install github.com/matryer/moq@latest
+	go install github.com/golangci/golangci-lint/cmd/golangci-lint@latest
 
 generate:
 	go generate ./...
